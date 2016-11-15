@@ -8,7 +8,14 @@ DEVICE=$(networksetup -listnetworkserviceorder | awk '
         split(var, ARRAY, " ")
     }
 
-    { if ($5 ~ ARRAY[6]) { NAME=$3 } }
+    {
+        FS=":|,"
+        if ($4 ~ ARRAY[6]) {
+          NAME=$2
+          sub(/^[[:blank:]]*/, "", NAME)
+          sub(/[[:blank:]]$/, "", NAME)
+        }
+    }
 
     END { print NAME }
 ')
@@ -31,10 +38,10 @@ esac
 
 if [ -n "$proxy_url" ]; then
 	if [ "$proxy_url" = "$disable_flag" ]; then
-		networksetup -setautoproxystate ${DEVICE%,*} off
+		networksetup -setautoproxystate "${DEVICE%,*}" off
 		echo "disable autoproxy"
 	else
-		networksetup -setautoproxyurl ${DEVICE%,*} ${proxy_url}
+		networksetup -setautoproxyurl "${DEVICE%,*}" ${proxy_url}
 		echo "switch to ${proxy_url}"
 	fi
 else
